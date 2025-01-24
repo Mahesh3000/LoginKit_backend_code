@@ -17,7 +17,7 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: "http://98.82.177.76:5173", // Your frontend URL, change if needed
+  origin: "http://3.80.199.153:5173", // Your frontend URL, change if needed
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 };
