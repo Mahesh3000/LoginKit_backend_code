@@ -16,6 +16,7 @@ const pool = new Pool({
   max: process.env.DB_MAX_CLIENTS || 10, // Maximum number of clients in the pool (default 10)
   idleTimeoutMillis: process.env.DB_IDLE_TIMEOUT || 30000, // Close idle clients after this time (default 30s)
   connectionTimeoutMillis: process.env.DB_CONNECTION_TIMEOUT || 2000, // Timeout for new connections (default 2s)
+  ssl: { rejectUnauthorized: false },
 });
 
 // Connection success event
