@@ -1,12 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const session = require("express-session");
 const pool = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const otpRoutes = require("./routes/otpRoutes");
 const imageRoutes = require("./routes/imagesRoutes");
-// const cookieSession = require("cookie-session");
-const session = require("express-session");
 require("./config/passport");
 
 const passport = require("passport");
@@ -15,38 +14,39 @@ require("dotenv").config();
 
 const app = express();
 app.use(express.json());
-
-const corsOptions = {
-  origin: "http://3.80.199.153:5173", // Your frontend URL, change if needed
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
-};
-
-app.use(cors(corsOptions));
-// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-
 app.use(bodyParser.json());
 
-app.use("/auth", authRoutes);
-
-app.use("/otp", otpRoutes);
-
-app.use("/images", imageRoutes);
+// app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
+// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(
   session({
-    secret: "your_secret_key", // Replace with a strong secret
+    secret: "your_secret_key",
     resave: false,
     saveUninitialized: false,
     cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-      secure: false, // Set to true if you're using HTTPS
     },
   })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use("/auth", authRoutes);
+
+app.use("/otp", otpRoutes);
+
+app.use("/images", imageRoutes);
 
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {

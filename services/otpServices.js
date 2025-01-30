@@ -1,14 +1,16 @@
 const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
 const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
 const otplib = require("otplib");
+const redisClient = require("../config/redis");
+const crypto = require("crypto");
 
 const snsClient = require("../config/aws");
 // const sesClient = require("../config/aws");
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
 
-const sendEmailOtp = async (email) => {
-  const otp = otplib.authenticator.generate(process.env.OTP_SECRET_KEY);
+const sendEmailOtp = async (email, otp) => {
+  // const otp = otplib.authenticator.generate(process.env.OTP_SECRET_KEY);
 
   // HTML content for the email
   const htmlContent = `
@@ -74,4 +76,43 @@ const sendSmsOtp = async (phoneNumber) => {
   }
 };
 
-module.exports = { sendSmsOtp, sendEmailOtp };
+const generateOTP = (length = 6) => {
+  const digits = "0123456789";
+  let otp = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = crypto.randomInt(0, digits.length);
+    otp += digits[randomIndex];
+  }
+  return otp;
+};
+
+// const otp = generateSecureOTP();
+
+const storeOTP = async (email, otp, ttl = 600) => {
+  try {
+    // Use setEx directly, as it supports promises
+    const response = await redisClient.setEx(email, ttl, otp);
+    return response; // Typically returns "OK" if successful
+  } catch (error) {
+    throw new Error(`Failed to store OTP: ${error.message}`);
+  }
+};
+
+// Verify OTP from Redis
+const verifyOTP = async (email, otp) => {
+  try {
+    // Retrieve the OTP from Redis
+    const storedOtp = await redisClient.get(email);
+
+    if (storedOtp === otp) {
+      await redisClient.del(email);
+      return true;
+    }
+
+    return false; // OTP doesn't match
+  } catch (error) {
+    throw new Error(`Failed to verify OTP: ${error.message}`);
+  }
+};
+
+module.exports = { sendSmsOtp, sendEmailOtp, generateOTP, storeOTP, verifyOTP };

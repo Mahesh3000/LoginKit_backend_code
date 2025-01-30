@@ -27,4 +27,5 @@ router.get(
     res.redirect("http://localhost:5173/dashboard"); // Redirect after successful login
   }
 );
+
 module.exports = router;

@@ -7,6 +7,9 @@ const {
 } = require("@aws-sdk/client-ses");
 const { getUserByEmailOrUsername } = require("../services/userServices");
 const { authenticator } = require("otplib");
+const { generateOTP, storeOTP, verifyOTP } = require("../services/otpServices");
+const { generateToken } = require("../config/jwt");
+const { sendLoginResponse } = require("../utils/response");
 
 // const sesClient = require("../config/aws");
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
@@ -102,44 +105,44 @@ const verifyEmailHandler = async (req, res) => {
   }
 };
 
-const verifyOtpHandler = async (req, res) => {
-  const { otp, userEmail } = req.body;
+// const verifyOtpHandler = async (req, res) => {
+//   const { otp, userEmail } = req.body;
 
-  if (!otp) {
-    return res.status(400).json({ success: false, message: "OTP is required" });
-  }
+//   if (!otp) {
+//     return res.status(400).json({ success: false, message: "OTP is required" });
+//   }
 
-  if (!userEmail) {
-    return res
-      .status(400)
-      .json({ success: false, message: "User email is required" });
-  }
+//   if (!userEmail) {
+//     return res
+//       .status(400)
+//       .json({ success: false, message: "User email is required" });
+//   }
 
-  try {
-    // Retrieve the user's OTP secret key from the database
-    const user = await getUserByEmailOrUsername(userEmail); // Assuming getUserByEmail is a function that retrieves user data
+//   try {
+//     // Retrieve the user's OTP secret key from the database
+//     const user = await getUserByEmailOrUsername(userEmail); // Assuming getUserByEmail is a function that retrieves user data
 
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
+//     if (!user) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
 
-    const userOtpSecret = user.otp_secret; // Ensure you have the OTP secret saved per user
+//     const userOtpSecret = user.otp_secret; // Ensure you have the OTP secret saved per user
 
-    // Verify OTP using the secret key retrieved from the database
-    const isValid = authenticator.check(otp, userOtpSecret);
+//     // Verify OTP using the secret key retrieved from the database
+//     const isValid = authenticator.check(otp, userOtpSecret);
 
-    if (isValid) {
-      return res.status(200).json({ success: true, message: "OTP verified" });
-    } else {
-      return res.status(400).json({ success: false, message: "Invalid OTP" });
-    }
-  } catch (error) {
-    console.error("Error verifying OTP:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-};
+//     if (isValid) {
+//       return res.status(200).json({ success: true, message: "OTP verified" });
+//     } else {
+//       return res.status(400).json({ success: false, message: "Invalid OTP" });
+//     }
+//   } catch (error) {
+//     console.error("Error verifying OTP:", error);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
 
 const sendEmailOtpHandler = async (req, res) => {
   const { body } = req;
@@ -180,7 +183,6 @@ const sendEmailOtpHandler = async (req, res) => {
   }
 };
 
-// Controller for sending OTP via SMS
 const sendPhoneOtpHandler = async (req, res) => {
   const { phoneNumber } = req.body;
 
@@ -210,10 +212,64 @@ const sendPhoneOtpHandler = async (req, res) => {
   }
 };
 
+const requestOTPHandler = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const otp = generateOTP(6);
+
+  try {
+    const isOtpStored = await storeOTP(email, otp);
+    if (isOtpStored == "OK") {
+      const result = await sendEmailOtp(email, otp);
+      res.json({ message: "OTP stored sucessfull", otp, isOtpStored, result });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Failed to send OTP", error });
+  }
+};
+
+const verifyOtpHandler = async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ message: "Email and OTP are required" });
+  }
+
+  try {
+    const isValid = await verifyOTP(email, otp);
+    if (isValid) {
+      // // res.json({ message: "OTP verified successfully" });
+      // return res.status(200).json({
+      //   success: true,
+      //   message: "OTP verified successfully",
+      // });
+      const user = await getUserByEmailOrUsername(email);
+
+      const token = generateToken({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      });
+
+      // Send login response using sendLoginResponse
+      return sendLoginResponse(res, user, token, "OTP verified successfully");
+    } else {
+      res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to verify OTP in contrller", error });
+  }
+};
+
 module.exports = {
   sendEmailOtpHandler,
   sendPhoneOtpHandler,
   listOfVerfiedEmailHandler,
   verifyEmailHandler,
   verifyOtpHandler,
+  requestOTPHandler,
 };

@@ -5,6 +5,7 @@ const {
   verifyEmailHandler,
   listOfVerfiedEmailHandler,
   verifyOtpHandler,
+  requestOTPHandler,
 } = require("../controllers/otpController");
 const {
   generateQRHandler,
@@ -15,6 +16,7 @@ const router = express.Router();
 
 // Otp routes with email and phone
 router.post("/verify-email", verifyEmailHandler);
+router.post("/request-otp", requestOTPHandler);
 router.post("/verify-otp", verifyOtpHandler);
 router.get("/list-verified-emails", listOfVerfiedEmailHandler);
 router.post("/send-email-otp", sendEmailOtpHandler);

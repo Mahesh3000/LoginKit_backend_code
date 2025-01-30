@@ -59,6 +59,7 @@ const verifyTOTPHandler = async (req, res) => {
     }
 
     const isValid = authenticator.verify({ token: code, secret: totpSecret });
+    console.log("user", isValid, user, code, totpSecret);
 
     if (isValid) {
       if (!user) {
@@ -66,7 +67,7 @@ const verifyTOTPHandler = async (req, res) => {
           .status(404)
           .json({ success: false, message: "User not found" });
       }
-      await updateTotpFirstTimeUserStatus(user.id);
+      // await updateTotpFirstTimeUserStatus(user.id);
 
       const token = generateToken({
         id: user.id,

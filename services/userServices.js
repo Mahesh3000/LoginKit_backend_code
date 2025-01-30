@@ -48,6 +48,19 @@ const getUserByEmailOrUsername = async (identifier) => {
   }
 };
 
+const getUsernameByEmailOrUsername = async (identifier) => {
+  const query =
+    "SELECT username,email FROM users WHERE email = $1 OR username = $1";
+  const values = [identifier];
+
+  try {
+    const { rows } = await pool.query(query, values);
+    return rows.length ? rows[0] : null;
+  } catch (err) {
+    throw new Error("Error fetching user: " + err.message);
+  }
+};
+
 const loginUser = async (identifier, password) => {
   const user = await getUserByEmailOrUsername(identifier);
 
@@ -98,27 +111,25 @@ const getTOTPSecret = async (username) => {
 };
 
 const updateUserById = async (userId) => {
-  const query =
-    "UPDATE users SET is_first_time_user = false,totp_enabled=true WHERE id = $1";
-  const values = [userId];
-
-  try {
-    const result = await pool.query(query, values);
-    return result.rowCount > 0; // Returns true if the update was successful
-  } catch (error) {
-    console.error("Error updating is_first_time_user status:", error);
-    throw error;
-  }
+  // const query =
+  //   "UPDATE users SET is_first_time_user = false,totp_enabled=true WHERE id = $1";
+  // const values = [userId];
+  // try {
+  //   const result = await pool.query(query, values);
+  //   return result.rowCount > 0; // Returns true if the update was successful
+  // } catch (error) {
+  //   console.error("Error updating is_first_time_user status:", error);
+  //   throw error;
+  // }
 };
 
-const updateUserTOTP = async (userId, totpEnabled, totpSecret = null) => {
+const updateUserTOTP = async (userId, totpEnabled) => {
   const query = `
-    UPDATE users 
-    SET totp_enabled = $1, totp_secret = $2 
-    WHERE id = $3     
+    UPDATE users
+    SET totp_enabled = $1
+    WHERE id = $2
   `;
-  const values = [totpEnabled, totpSecret, userId];
-
+  const values = [totpEnabled, userId];
   try {
     const { rows } = await pool.query(query, values);
     return rows.length ? rows[0] : null;
@@ -151,6 +162,7 @@ module.exports = {
   updateUserById,
   updateUserTOTP,
   updateUserOTP,
+  getUsernameByEmailOrUsername,
 };
 
 // Function to validate user credentials and generate a token

@@ -1,18 +1,13 @@
 const bcrypt = require("bcrypt");
-const {
-  createUser,
-  loginUser,
-  getUserByEmailOrUsername,
-} = require("../services/userServices");
 const { validateRegistrationData } = require("../utils/validators");
 const { authenticator } = require("otplib");
 const { sendLoginResponse } = require("../utils/response");
 const userServices = require("../services/userServices"); // Adjust the path if needed
+const { generateToken } = require("../config/jwt");
 
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, phone_number } = req.body;
-    // const salt = 10;
     const saltRounds = 10;
     const secret = authenticator.generateSecret();
 
@@ -31,7 +26,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Save the user to the database
-    const user = await createUser(
+    const user = await userServices.createUser(
       username,
       email,
       hashedPassword,
@@ -40,18 +35,18 @@ const registerUser = async (req, res) => {
     );
 
     if (user.error) {
-      return res.status(400).json({ error: user.error }); // If user exists, send error response
+      return res.status(400).json({ error: user.error });
     }
 
-    // Respond with success
-    res.status(200).json({
-      message: "User registered successfully",
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
+    // Generate JWT token using the existing utility
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      username: user.username,
     });
+
+    // Send login response using sendLoginResponse
+    return sendLoginResponse(res, user, token, "User registered successfully");
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error. Please try again later." });
@@ -70,7 +65,7 @@ const login = async (req, res) => {
   console.log("identifier, password ", identifier, password);
 
   try {
-    const result = await loginUser(identifier, password);
+    const result = await userServices.loginUser(identifier, password);
 
     if (result.error) {
       return res.status(401).json({ message: result.message });
@@ -131,7 +126,7 @@ const getUser = async (req, res) => {
 
   try {
     // Call the function to get user by email or username
-    const user = await getUserByEmailOrUsername(identifier);
+    const user = await userServices.getUsernameByEmailOrUsername(identifier);
 
     // If user is not found
     if (!user) {
@@ -174,23 +169,22 @@ const toggleTotpHandler = async (req, res) => {
     const { identifier, enable } = req.body;
 
     // Fetch user by email or username
-    const user = await getUserByEmailOrUsername(identifier);
+    const user = await userServices.getUserByEmailOrUsername(identifier);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    console.log("enable", enable);
+
     // If enabling TOTP, generate a secret; otherwise, set secret to null
-    const secret = enable ? authenticator.generateSecret() : null;
+    // const secret = enable ? authenticator.generateSecret() : null;
 
     // Update the user's TOTP settings
-    const updatedUser = await userServices.updateUserTOTP(
-      user.id,
-      enable,
-      secret
-    );
+    const updatedUser = await userServices.updateUserTOTP(user.id, enable);
 
     res.status(200).json({
+      success: true,
       message: `TOTP ${enable ? "enabled" : "disabled"} successfully`,
       // ...(enable && { secret: updatedUser.totp_secret }), // Only include the secret if enabling
     });
@@ -205,7 +199,7 @@ const toggleOtpHandler = async (req, res) => {
     const { identifier, enable } = req.body;
 
     // Fetch user by email or username
-    const user = await getUserByEmailOrUsername(identifier);
+    const user = await userServices.getUserByEmailOrUsername(identifier);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
