@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 // app.use(cors());
 app.use(
   cors({
-    origin: `http://${process.env.LOCAL_IP}/:5173`,
+    origin: "http://98.82.175.42/:5173",
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
