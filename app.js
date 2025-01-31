@@ -17,14 +17,14 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 // app.use(cors());
-// app.use(
-//   cors({
-//     origin: "http://98.82.175.42/:5173",
-//     methods: "GET,POST,PUT,DELETE",
-//     credentials: true,
-//   })
-// );
-app.use(cors({ origin: "http://98.82.175.42/:5173", credentials: true }));
+app.use(
+  cors({
+    origin: "http://98.82.175.42/:5173",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
+// app.use(cors({ origin: "http://98.82.175.42/:5173", credentials: true }));
 
 app.use(
   session({
