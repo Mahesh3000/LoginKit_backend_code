@@ -21,10 +21,10 @@ router.get("/google", passport.authenticate("google", ["profile", "email"]));
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173/",
+    failureRedirect: `http://${process.env.LOCAL_IP}/:5173`,
   }),
   (req, res) => {
-    res.redirect("http://localhost:5173/dashboard"); // Redirect after successful login
+    res.redirect(`http://${process.env.LOCAL_IP}/:5173/dashboard`); // Redirect after successful login
   }
 );
 
