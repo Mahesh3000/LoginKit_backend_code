@@ -26,7 +26,9 @@ router.get(
   (req, res) => {
     const token = req.user.token; // The token generated earlier
 
-    res.redirect(`http://localhost:5173/dashboard?token=${token}`); // Send token in query string
+    res.redirect(
+      `http://${process.env.LOCAL_IP}:5173/dashboard?token=${token}`
+    ); // Send token in query string
   }
 );
 
