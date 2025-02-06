@@ -21,14 +21,12 @@ router.get("/google", passport.authenticate("google", ["profile", "email"]));
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `http://${process.env.LOCAL_IP}/:5173`,
+    failureRedirect: `http://18.234.47.219:5173`,
   }),
   (req, res) => {
-    const token = req.user.token; // The token generated earlier
+    const token = req.user.token;
 
-    res.redirect(
-      `http://${process.env.LOCAL_IP}:5173/dashboard?token=${token}`
-    ); // Send token in query string
+    res.redirect(`http://18.234.47.219:5173/dashboard?token=${token}`);
   }
 );
 
