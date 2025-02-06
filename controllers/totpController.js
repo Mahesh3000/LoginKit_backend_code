@@ -59,7 +59,6 @@ const verifyTOTPHandler = async (req, res) => {
     }
 
     const isValid = authenticator.verify({ token: code, secret: totpSecret });
-    console.log("user", isValid, user, code, totpSecret);
 
     if (isValid) {
       if (!user) {

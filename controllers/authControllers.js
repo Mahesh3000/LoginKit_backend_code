@@ -62,8 +62,6 @@ const login = async (req, res) => {
       .json({ message: "Identifier and password are required" });
   }
 
-  console.log("identifier, password ", identifier, password);
-
   try {
     const result = await userServices.loginUser(identifier, password);
 
@@ -85,6 +83,7 @@ const login = async (req, res) => {
           id: result.user.id,
           username: result.user.username,
           email: result.user.email,
+          phone_number: result.user.phone_number,
           totp_enabled: result.user.totp_enabled,
           otp_enabled: result.user.otp_enabled,
         },
@@ -101,6 +100,7 @@ const login = async (req, res) => {
           id: result.user.id,
           username: result.user.username,
           email: result.user.email,
+          phone_number: result.user.phone_number,
           totp_enabled: result.user.totp_enabled,
           otp_enabled: result.user.otp_enabled,
         },

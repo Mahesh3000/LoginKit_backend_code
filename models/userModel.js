@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const bcrypt = require("bcrypt");
 
 const User = {
   // Method to find a user by email
@@ -67,6 +68,9 @@ const User = {
         [username]
       );
 
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(username, saltRounds);
+
       if (existingUsernameCheck.rows.length > 0) {
         // Username already exists, modify the username to make it unique
         const uniqueUsername = `${username}_${googleId}`;
@@ -81,7 +85,7 @@ const User = {
           email,
           uniqueUsername,
           profilePhoto,
-          username, // You can set a default password if needed, or handle differently
+          hashedPassword,
         ]);
         return result.rows[0];
       }
@@ -97,7 +101,7 @@ const User = {
         email,
         username,
         profilePhoto,
-        username, // You can set a default password if needed, or handle differently
+        hashedPassword, // You can set a default password if needed, or handle differently
       ]);
 
       return result.rows[0];
