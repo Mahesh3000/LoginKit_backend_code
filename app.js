@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 // app.use(cors());
 app.use(
   cors({
-    origin: "http://18.234.47.219:5173",
+    origin: "http://maheshsivangi.tech:5173",
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
