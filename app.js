@@ -16,14 +16,25 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.json());
 
-// app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Vite frontend
-    credentials: true,
-  })
-);
-// app.use(cors({ origin: "http://98.82.175.42/:5173", credentials: true }));
+const allowedOrigins = [
+  "https://maheshsivangi.tech",
+  "https://cryptotrack.maheshsivangi.tech",
+  "http://localhost:5173",
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(
   session({
