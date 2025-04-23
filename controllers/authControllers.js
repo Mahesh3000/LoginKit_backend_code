@@ -86,6 +86,7 @@ const login = async (req, res) => {
           phone_number: result.user.phone_number,
           totp_enabled: result.user.totp_enabled,
           otp_enabled: result.user.otp_enabled,
+          phone_number: result.user.phone_number || "",
         },
       });
     }
@@ -103,6 +104,7 @@ const login = async (req, res) => {
           phone_number: result.user.phone_number,
           totp_enabled: result.user.totp_enabled,
           otp_enabled: result.user.otp_enabled,
+          phone_number: result.user.phone_number || "",
         },
       });
     }

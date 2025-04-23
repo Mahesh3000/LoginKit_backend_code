@@ -19,8 +19,7 @@ app.use(bodyParser.json());
 // app.use(cors());
 app.use(
   cors({
-    origin: "*",
-    methods: "GET,POST,PUT,DELETE",
+    origin: "http://localhost:5173", // Vite frontend
     credentials: true,
   })
 );
