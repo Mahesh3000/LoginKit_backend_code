@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 
 const allowedOrigins = [
   "https://maheshsivangi.tech",
-  "https://cryptotrack.maheshsivangi.tech",
+  "https://loginkit.maheshsivangi.tech",
   "http://localhost:5173",
 ];
 
