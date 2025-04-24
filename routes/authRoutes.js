@@ -21,12 +21,14 @@ router.get("/google", passport.authenticate("google", ["profile", "email"]));
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `http://localhost:5173`,
+    failureRedirect: `https://main.d2kp62byamf4dd.amplifyapp.com`,
   }),
   (req, res) => {
     const token = req.user.token;
 
-    res.redirect(`http://localhost:5173/dashboard?token=${token}`);
+    res.redirect(
+      `https://main.d2kp62byamf4dd.amplifyapp.com/dashboard?token=${token}`
+    );
   }
 );
 

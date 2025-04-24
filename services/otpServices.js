@@ -14,14 +14,58 @@ const sendEmailOtp = async (email, otp) => {
 
   // HTML content for the email
   const htmlContent = `
+     <!DOCTYPE html>
     <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 40px 30px;
+            text-align: center;
+          }
+          h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+          }
+          p {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 30px;
+          }
+          .otp-code {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 6px;
+            margin-bottom: 20px;
+          }
+          .footer {
+            font-size: 13px;
+            color: #888;
+            margin-top: 40px;
+          }
+        </style>
+      </head>
       <body>
-        <h1 style="text-align: center; color: #4CAF50;">Your OTP Code</h1>
-        <p style="font-size: 16px; text-align: center;">Your OTP for verification is:</p>
-        <h2 style="text-align: center; color: #333;">${otp}</h2>
-        <p style="text-align: center; font-size: 14px; color: #777;">
-          This OTP is valid for 10 minutes. Please do not share it with anyone.
-        </p>
+        <div class="container">
+          <h1>Your One-Time Password (OTP)</h1>
+          <p>Please use the following code to complete your verification:</p>
+          <div class="otp-code">${otp}</div>
+          <p>This code is valid for 10 minutes. Do not share it with anyone.</p>
+          <div class="footer">
+            If you did not request this, you can safely ignore this email.
+          </div>
+        </div>
       </body>
     </html>
   `;
@@ -34,7 +78,7 @@ const sendEmailOtp = async (email, otp) => {
     Message: {
       Subject: {
         Charset: "UTF-8",
-        Data: "Your OTP Code chuskora",
+        Data: "Your One-Time Password (OTP)",
       },
       Body: {
         Html: {
