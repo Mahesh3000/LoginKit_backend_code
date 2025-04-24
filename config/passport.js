@@ -48,7 +48,6 @@ passport.serializeUser((user, done) => done(null, user.email));
 passport.deserializeUser(async (email, done) => {
   try {
     const user = await User.findUserByEmail(email);
-    console.log("Deserialized User: ", user); // Check if user exists
     if (!user) {
       return done(null, false); // If no user found, pass false
     }
