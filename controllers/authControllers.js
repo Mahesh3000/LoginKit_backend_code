@@ -159,7 +159,6 @@ const updateTotpFirstTimeUserStatus = async (userId) => {
     const result = await userServices.updateUserById(userId, {
       is_first_time_user: false,
     });
-    console.log("First-time user status updated successfully", result);
   } catch (error) {
     console.error("Error updating first-time user status:", error);
     throw new Error("Failed to update first-time user status");
@@ -176,8 +175,6 @@ const toggleTotpHandler = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
-    console.log("enable", enable);
 
     // If enabling TOTP, generate a secret; otherwise, set secret to null
     // const secret = enable ? authenticator.generateSecret() : null;

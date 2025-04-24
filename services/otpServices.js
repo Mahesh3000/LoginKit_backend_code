@@ -112,7 +112,6 @@ const sendSmsOtp = async (phoneNumber) => {
 
   try {
     const result = await snsClient.send(command);
-    console.log("SMS OTP sent successfully:", result);
     return { success: true, otp, messageId: result.MessageId };
   } catch (error) {
     console.error("Error sending SMS OTP:", error);
