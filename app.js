@@ -18,6 +18,7 @@ app.use(bodyParser.json());
 
 const allowedOrigins = [
   "https://maheshsivangi.tech",
+  "https://app.loginkit.maheshsivangi.tech/",
   "https://main.d2kp62byamf4dd.amplifyapp.com",
   "http://localhost:5173",
 ];
