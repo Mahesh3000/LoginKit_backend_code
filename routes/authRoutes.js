@@ -21,13 +21,13 @@ router.get("/google", passport.authenticate("google", ["profile", "email"]));
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `https://main.d2kp62byamf4dd.amplifyapp.com`,
+    failureRedirect: `https://app.loginkit.maheshsivangi.tech`,
   }),
   (req, res) => {
     const token = req.user.token;
 
     res.redirect(
-      `https://main.d2kp62byamf4dd.amplifyapp.com/dashboard?token=${token}`
+      `https://app.loginkit.maheshsivangi.tech/dashboard?token=${token}`
     );
   }
 );
